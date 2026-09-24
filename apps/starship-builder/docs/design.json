@@ -1,0 +1,756 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-24T07:21:23+00:00",
+  "title": "Design System: Prompt Bar Builder",
+  "extensions": {
+    "colorMeta": {
+      "crust-ground": {
+        "role": "neutral",
+        "displayName": "Crust Ground",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--ground",
+        "theme": "dark"
+      },
+      "mantle-sheet": {
+        "role": "neutral",
+        "displayName": "Mantle Sheet",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--sheet",
+        "theme": "dark"
+      },
+      "base-raise": {
+        "role": "neutral",
+        "displayName": "Base Raise",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--raise",
+        "theme": "dark"
+      },
+      "surface-rule": {
+        "role": "neutral",
+        "displayName": "Surface Rule",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--rule",
+        "theme": "dark"
+      },
+      "surface-rule-strong": {
+        "role": "neutral",
+        "displayName": "Surface Rule Strong",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--rule-2",
+        "theme": "dark"
+      },
+      "mocha-ink": {
+        "role": "neutral",
+        "displayName": "Mocha Ink",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--ink",
+        "theme": "dark"
+      },
+      "mocha-ink-soft": {
+        "role": "neutral",
+        "displayName": "Mocha Ink Soft",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--ink-2",
+        "theme": "dark"
+      },
+      "mocha-ink-muted": {
+        "role": "neutral",
+        "displayName": "Mocha Ink Muted",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--ink-3",
+        "theme": "dark"
+      },
+      "terminal-base": {
+        "role": "neutral",
+        "displayName": "Terminal Base",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--tbg",
+        "theme": "dark"
+      },
+      "latte-ground": {
+        "role": "neutral",
+        "displayName": "Latte Ground",
+        "tonalRamp": [
+          "#4c4f69",
+          "#5c5f77",
+          "#6c6f85",
+          "#9ca0b0",
+          "#acb0be",
+          "#ccd0da",
+          "#dce0e8",
+          "#eff1f5"
+        ],
+        "cssVar": "--ground",
+        "theme": "light"
+      },
+      "latte-sheet": {
+        "role": "neutral",
+        "displayName": "Latte Sheet",
+        "tonalRamp": [
+          "#4c4f69",
+          "#5c5f77",
+          "#6c6f85",
+          "#9ca0b0",
+          "#acb0be",
+          "#ccd0da",
+          "#dce0e8",
+          "#eff1f5"
+        ],
+        "cssVar": "--sheet",
+        "theme": "light"
+      },
+      "latte-raise": {
+        "role": "neutral",
+        "displayName": "Latte Raise",
+        "tonalRamp": [
+          "#4c4f69",
+          "#5c5f77",
+          "#6c6f85",
+          "#9ca0b0",
+          "#acb0be",
+          "#ccd0da",
+          "#dce0e8",
+          "#eff1f5"
+        ],
+        "cssVar": "--raise",
+        "theme": "light"
+      },
+      "latte-rule": {
+        "role": "neutral",
+        "displayName": "Latte Rule",
+        "tonalRamp": [
+          "#4c4f69",
+          "#5c5f77",
+          "#6c6f85",
+          "#9ca0b0",
+          "#acb0be",
+          "#ccd0da",
+          "#dce0e8",
+          "#eff1f5"
+        ],
+        "cssVar": "--rule",
+        "theme": "light"
+      },
+      "latte-rule-strong": {
+        "role": "neutral",
+        "displayName": "Latte Rule Strong",
+        "tonalRamp": [
+          "#4c4f69",
+          "#5c5f77",
+          "#6c6f85",
+          "#9ca0b0",
+          "#acb0be",
+          "#ccd0da",
+          "#dce0e8",
+          "#eff1f5"
+        ],
+        "cssVar": "--rule-2",
+        "theme": "light"
+      },
+      "latte-ink": {
+        "role": "neutral",
+        "displayName": "Latte Ink",
+        "tonalRamp": [
+          "#4c4f69",
+          "#5c5f77",
+          "#6c6f85",
+          "#9ca0b0",
+          "#acb0be",
+          "#ccd0da",
+          "#dce0e8",
+          "#eff1f5"
+        ],
+        "cssVar": "--ink",
+        "theme": "light"
+      },
+      "latte-ink-soft": {
+        "role": "neutral",
+        "displayName": "Latte Ink Soft",
+        "tonalRamp": [
+          "#4c4f69",
+          "#5c5f77",
+          "#6c6f85",
+          "#9ca0b0",
+          "#acb0be",
+          "#ccd0da",
+          "#dce0e8",
+          "#eff1f5"
+        ],
+        "cssVar": "--ink-2",
+        "theme": "light"
+      },
+      "latte-ink-muted": {
+        "role": "neutral",
+        "displayName": "Latte Ink Muted",
+        "tonalRamp": [
+          "#4c4f69",
+          "#5c5f77",
+          "#6c6f85",
+          "#9ca0b0",
+          "#acb0be",
+          "#ccd0da",
+          "#dce0e8",
+          "#eff1f5"
+        ],
+        "cssVar": "--ink-3",
+        "theme": "light"
+      },
+      "peach-mark": {
+        "role": "primary",
+        "displayName": "Peach Proofing Mark",
+        "canonical": "oklch(82.4% 0.101 52.6)",
+        "tonalRamp": [
+          "oklch(15% 0.055 52.6)",
+          "oklch(26% 0.074 52.6)",
+          "oklch(37% 0.093 52.6)",
+          "oklch(48% 0.101 52.6)",
+          "oklch(59% 0.101 52.6)",
+          "oklch(70% 0.101 52.6)",
+          "oklch(82% 0.094 52.6)",
+          "oklch(95% 0.072 52.6)"
+        ],
+        "cssVar": "--mark",
+        "softTint": "rgba(250,179,135,.14)",
+        "theme": "dark"
+      },
+      "mark-ink": {
+        "role": "neutral",
+        "displayName": "Mark Ink (text on peach)",
+        "tonalRamp": [
+          "#11111b",
+          "#181825",
+          "#1e1e2e",
+          "#313244",
+          "#45475a",
+          "#6c7086",
+          "#a6adc8",
+          "#cdd6f4"
+        ],
+        "cssVar": "--mark-ink"
+      },
+      "latte-peach-mark": {
+        "role": "primary",
+        "displayName": "Latte Proofing Mark",
+        "canonical": "oklch(69.2% 0.204 42.4)",
+        "tonalRamp": [
+          "oklch(15% 0.081 42.4)",
+          "oklch(26% 0.118 42.4)",
+          "oklch(37% 0.156 42.4)",
+          "oklch(48% 0.193 42.4)",
+          "oklch(59% 0.204 42.4)",
+          "oklch(70% 0.200 42.4)",
+          "oklch(82% 0.159 42.4)",
+          "oklch(95% 0.115 42.4)"
+        ],
+        "cssVar": "--mark",
+        "softTint": "rgba(254,100,11,.12)",
+        "theme": "light"
+      },
+      "latte-mark-text": {
+        "role": "primary",
+        "displayName": "Latte Mark Text",
+        "canonical": "oklch(53.9% 0.156 43.0)",
+        "tonalRamp": [
+          "oklch(15% 0.069 43.0)",
+          "oklch(26% 0.098 43.0)",
+          "oklch(37% 0.126 43.0)",
+          "oklch(48% 0.155 43.0)",
+          "oklch(59% 0.156 43.0)",
+          "oklch(70% 0.156 43.0)",
+          "oklch(82% 0.129 43.0)",
+          "oklch(95% 0.095 43.0)"
+        ],
+        "cssVar": "--mark-text",
+        "theme": "light"
+      },
+      "green-ok": {
+        "role": "status",
+        "displayName": "Green OK",
+        "canonical": "oklch(85.8% 0.109 142.7)",
+        "tonalRamp": [
+          "oklch(15% 0.057 142.7)",
+          "oklch(26% 0.077 142.7)",
+          "oklch(37% 0.097 142.7)",
+          "oklch(48% 0.109 142.7)",
+          "oklch(59% 0.109 142.7)",
+          "oklch(70% 0.109 142.7)",
+          "oklch(82% 0.099 142.7)",
+          "oklch(95% 0.076 142.7)"
+        ],
+        "cssVar": "--ok",
+        "softTint": "rgba(166,227,161,.12)",
+        "theme": "dark"
+      },
+      "yellow-warn": {
+        "role": "status",
+        "displayName": "Yellow Warn",
+        "canonical": "oklch(91.9% 0.070 86.5)",
+        "tonalRamp": [
+          "oklch(15% 0.048 86.5)",
+          "oklch(26% 0.061 86.5)",
+          "oklch(37% 0.070 86.5)",
+          "oklch(48% 0.070 86.5)",
+          "oklch(59% 0.070 86.5)",
+          "oklch(70% 0.070 86.5)",
+          "oklch(82% 0.070 86.5)",
+          "oklch(95% 0.059 86.5)"
+        ],
+        "cssVar": "--warn",
+        "softTint": "rgba(249,226,175,.12)",
+        "theme": "dark"
+      },
+      "red-bad": {
+        "role": "status",
+        "displayName": "Red Bad",
+        "canonical": "oklch(75.6% 0.130 2.8)",
+        "tonalRamp": [
+          "oklch(15% 0.062 2.8)",
+          "oklch(26% 0.086 2.8)",
+          "oklch(37% 0.110 2.8)",
+          "oklch(48% 0.130 2.8)",
+          "oklch(59% 0.130 2.8)",
+          "oklch(70% 0.130 2.8)",
+          "oklch(82% 0.112 2.8)",
+          "oklch(95% 0.084 2.8)"
+        ],
+        "cssVar": "--bad",
+        "softTint": "rgba(243,139,168,.13)",
+        "theme": "dark"
+      },
+      "latte-ok": {
+        "role": "status",
+        "displayName": "Latte OK",
+        "canonical": "oklch(51.2% 0.148 141.1)",
+        "tonalRamp": [
+          "oklch(15% 0.067 141.1)",
+          "oklch(26% 0.094 141.1)",
+          "oklch(37% 0.121 141.1)",
+          "oklch(48% 0.148 141.1)",
+          "oklch(59% 0.148 141.1)",
+          "oklch(70% 0.148 141.1)",
+          "oklch(82% 0.123 141.1)",
+          "oklch(95% 0.091 141.1)"
+        ],
+        "cssVar": "--ok",
+        "softTint": "rgba(64,160,43,.13)",
+        "theme": "light"
+      },
+      "latte-warn": {
+        "role": "status",
+        "displayName": "Latte Warn",
+        "canonical": "oklch(50.8% 0.108 73.3)",
+        "tonalRamp": [
+          "oklch(15% 0.057 73.3)",
+          "oklch(26% 0.077 73.3)",
+          "oklch(37% 0.097 73.3)",
+          "oklch(48% 0.108 73.3)",
+          "oklch(59% 0.108 73.3)",
+          "oklch(70% 0.108 73.3)",
+          "oklch(82% 0.098 73.3)",
+          "oklch(95% 0.075 73.3)"
+        ],
+        "cssVar": "--warn",
+        "softTint": "rgba(223,142,29,.15)",
+        "theme": "light"
+      },
+      "latte-bad": {
+        "role": "status",
+        "displayName": "Latte Bad",
+        "canonical": "oklch(51.7% 0.182 12.7)",
+        "tonalRamp": [
+          "oklch(15% 0.075 12.7)",
+          "oklch(26% 0.109 12.7)",
+          "oklch(37% 0.142 12.7)",
+          "oklch(48% 0.175 12.7)",
+          "oklch(59% 0.182 12.7)",
+          "oklch(70% 0.181 12.7)",
+          "oklch(82% 0.145 12.7)",
+          "oklch(95% 0.106 12.7)"
+        ],
+        "cssVar": "--bad",
+        "softTint": "rgba(210,15,57,.1)",
+        "theme": "light"
+      },
+      "segment-yellow": {
+        "role": "segment-content",
+        "displayName": "Mocha Yellow",
+        "note": "User segment palette default; never app chrome."
+      },
+      "segment-teal": {
+        "role": "segment-content",
+        "displayName": "Mocha Teal",
+        "note": "User segment palette default; never app chrome."
+      },
+      "segment-sky": {
+        "role": "segment-content",
+        "displayName": "Mocha Sky",
+        "note": "User segment palette default; never app chrome."
+      },
+      "segment-blue": {
+        "role": "segment-content",
+        "displayName": "Mocha Blue",
+        "note": "User segment palette default; never app chrome."
+      },
+      "segment-mauve": {
+        "role": "segment-content",
+        "displayName": "Mocha Mauve",
+        "note": "User segment palette default; never app chrome."
+      },
+      "segment-pink": {
+        "role": "segment-content",
+        "displayName": "Mocha Pink",
+        "note": "User segment palette default; never app chrome."
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section heads (Separators and caps, Modules)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Inspector heading; dialog 18px, empty state 17px."
+      },
+      "group-title": {
+        "displayName": "Group Title",
+        "purpose": "Plate group heads."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base UI text."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Descriptions, notes, inspector option text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Inspector field labels, plate names."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Button and control text; primary uses 600."
+      },
+      "terminal": {
+        "displayName": "Terminal",
+        "purpose": "Live terminal proof; 11.5px under 640px."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Export code well (TOML, zsh, ghostty)."
+      },
+      "codepoint": {
+        "displayName": "Codepoint",
+        "purpose": "Codepoints, $variables, hex readouts."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "Three-segment powerline wordmark."
+      },
+      "specimen": {
+        "displayName": "Specimen",
+        "purpose": "Glyph plate specimens."
+      },
+      "index-glyph": {
+        "displayName": "Index Glyph",
+        "purpose": "Module index glyphs."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 6px 14px -6px rgba(0,0,0,.55)",
+        "purpose": "Floating layers only: module picker, export dialog, inspector as bottom sheet. Latte: 0 6px 14px -6px rgba(76,79,105,.35)."
+      },
+      {
+        "name": "hud-drop",
+        "value": "0 10px 24px -10px rgba(0,0,0,.8)",
+        "purpose": "Floating edit strip inside the dark terminal."
+      },
+      {
+        "name": "swatch-ring",
+        "value": "0 0 0 2px var(--sheet), 0 0 0 4px var(--ink)",
+        "purpose": "Pressed color swatch ring; not elevation."
+      },
+      {
+        "name": "scrim",
+        "value": "rgba(8,8,14,.66)",
+        "purpose": "Modal backdrop. Latte: rgba(76,79,105,.45)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Proof underline wipe (.45s clip-path) and narrow-terminal width change (.35s)."
+      },
+      {
+        "name": "quick",
+        "value": "120ms",
+        "purpose": "Drop-gap widening during drag."
+      },
+      {
+        "name": "disclosure",
+        "value": "200ms",
+        "purpose": "Details chevron rotation."
+      },
+      {
+        "name": "cursor-blink",
+        "value": "1.1s steps(1) infinite",
+        "purpose": "Terminal cursor."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation:none; transition:none",
+        "purpose": "All motion removed under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "inspector-narrow",
+        "value": "1180px"
+      },
+      {
+        "name": "single-column-bottom-sheet",
+        "value": "900px"
+      },
+      {
+        "name": "phone",
+        "value": "640px"
+      },
+      {
+        "name": "max-width",
+        "value": "1480px"
+      }
+    ],
+    "themes": {
+      "dark": "Catppuccin Mocha ink (default, color-scheme: dark)",
+      "light": "Catppuccin Latte ink via prefers-color-scheme: light or [data-theme=light]; terminal proof and code well stay Mocha."
+    },
+    "fonts": {
+      "PBB Symbols": "Symbols Nerd Font subset (MIT), inlined woff2; UI icons (codicons) and specimens",
+      "Schibsted Grotesk": "OFL, latin variable subset, inlined",
+      "JetBrains Mono": "OFL, latin variable subset, inlined"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one peach action per view (Export, Copy).",
+      "html": "<button class=\"ds-btn ds-btn-primary\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M2 8h9M8 5l3 3-3 3M14 3v10\"/></svg>Export</button>",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-btn{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border-radius:7px;font:500 14px var(--ui);cursor:pointer;transition:background .15s,border-color .15s,filter .15s} .ds-btn-primary{background:var(--mark);border:1px solid var(--mark);color:var(--mark-ink);font-weight:600} .ds-btn-primary:hover{filter:brightness(1.07)} .ds-btn:focus-visible{outline:2px solid var(--mark);outline-offset:2px}"
+    },
+    {
+      "name": "Default Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Outlined secondary action (Import, inspector moves).",
+      "html": "<button class=\"ds-btn-default\">Import</button>",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-btn-default{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border-radius:7px;border:1px solid var(--rule-2);background:transparent;color:var(--ink);font:500 14px var(--ui);cursor:pointer} .ds-btn-default:hover{border-color:var(--ink-3);background:var(--raise)} .ds-btn-default:focus-visible{outline:2px solid var(--mark);outline-offset:2px}"
+    },
+    {
+      "name": "Scenario Toggle",
+      "kind": "chip",
+      "refersTo": "scenario-toggle",
+      "description": "Preview-as switches in the terminal title bar.",
+      "html": "<div class=\"ds-tbar\"><button class=\"ds-tog\" aria-pressed=\"true\">git repo</button><button class=\"ds-tog\" aria-pressed=\"false\">last failed</button></div>",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-tbar{display:flex;gap:4px;padding:9px 12px;background:#1e1e2e} .ds-tog{display:inline-flex;align-items:center;gap:6px;border:1px solid #45475a;background:transparent;color:#bac2de;border-radius:6px;padding:0 9px;min-height:28px;font:500 12.5px var(--ui);cursor:pointer} .ds-tog::before{content:'';width:7px;height:7px;border-radius:2px;border:1.5px solid #7f849c} .ds-tog[aria-pressed=true]{border-color:#fab387;color:#cdd6f4;background:rgba(250,179,135,.12)} .ds-tog[aria-pressed=true]::before{background:#fab387;border-color:#fab387} .ds-tog:focus-visible{outline:2px solid #fab387;outline-offset:2px}"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Module search in the sticky index header and picker.",
+      "html": "<input class=\"ds-input\" type=\"search\" placeholder=\"Search modules  ( / )\">",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-input{min-width:220px;min-height:36px;padding:0 12px;border:1px solid var(--rule-2);border-radius:7px;background:var(--sheet);color:var(--ink);font:400 14px var(--ui)} .ds-input::placeholder{color:var(--ink-3)} .ds-input:focus-visible{outline:2px solid var(--mark);outline-offset:2px}"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "segmented-control-active",
+      "description": "Joined option group; active option is a peach fill.",
+      "html": "<div class=\"ds-seg\"><button aria-pressed=\"true\">Bottom</button><button aria-pressed=\"false\">Top</button><button aria-pressed=\"false\">Off</button></div>",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-seg{display:inline-flex;border:1px solid var(--rule-2);border-radius:7px;overflow:hidden} .ds-seg button{border:0;background:transparent;padding:0 11px;min-height:32px;font:500 13px var(--ui);color:var(--ink-2);cursor:pointer} .ds-seg button+button{border-left:1px solid var(--rule-2)} .ds-seg button:hover{background:var(--raise)} .ds-seg button[aria-pressed=true]{background:var(--mark);color:var(--mark-ink)} .ds-seg button:focus-visible{outline:2px solid var(--mark);outline-offset:-2px}"
+    },
+    {
+      "name": "Glyph Plate",
+      "kind": "card",
+      "refersTo": "glyph-plate-selected",
+      "description": "Separator/cap specimen tile labeled with its codepoint; selected state shown.",
+      "html": "<button class=\"ds-plate\" role=\"radio\" aria-checked=\"true\"><span class=\"ds-spec\"><span style=\"background:#fab387;width:.62em;height:1em\"></span><svg viewBox=\"0 0 10 16\" style=\"width:.646em;height:1em;display:block\" aria-hidden=\"true\"><path d=\"M0 0L10 8L0 16Z\" fill=\"#fab387\"/></svg></span><span class=\"ds-tname\">Arrow <span class=\"ds-ck\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M3 8.5l3 3 7-7\"/></svg></span></span><span class=\"ds-tcode\">U+E0B0</span></button>",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-plate{display:flex;flex-direction:column;gap:8px;width:120px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:9px;padding:12px 8px 9px;text-align:left;cursor:pointer} .ds-plate:hover{border-color:var(--rule-2);background:var(--raise)} .ds-plate[aria-checked=true]{border-color:var(--mark);background:var(--mark-soft)} .ds-plate:focus-visible{outline:2px solid var(--mark);outline-offset:2px} .ds-spec{display:flex;justify-content:center;height:1em;font-size:34px;line-height:1} .ds-tname{display:flex;align-items:center;gap:6px;font:600 13.5px var(--ui)} .ds-ck{margin-left:auto;color:var(--mark-text);display:inline-flex} .ds-tcode{font:500 11.5px var(--mono);color:var(--ink-3)}"
+    },
+    {
+      "name": "Module Index Cell",
+      "kind": "card",
+      "refersTo": "index-cell",
+      "description": "Ruled specimen-table cell: glyph, codepoint, name, $variable; in-use corner flag.",
+      "html": "<div class=\"ds-grid\"><button class=\"ds-cell ds-used\"><span class=\"ds-gl\"><svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8\"/><path d=\"M12 7v5l3 2\"/></svg></span><span class=\"ds-cp\">U+F017</span><span class=\"ds-nm\">Clock</span><span class=\"ds-var\">$time<em> · in use</em></span></button><button class=\"ds-cell\"><span class=\"ds-gl\"><svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></span><span class=\"ds-cp\">U+F00D</span><span class=\"ds-nm\">Exit code</span><span class=\"ds-var\">$status</span></button></div>",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-grid{display:grid;grid-template-columns:repeat(2,176px);border-top:1px solid var(--rule);border-left:1px solid var(--rule)} .ds-cell{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:start;row-gap:1px;text-align:left;border:0;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);border-radius:0;background:transparent;color:var(--ink);padding:14px 12px 11px;min-height:108px;cursor:grab} .ds-cell:hover{background:var(--sheet)} .ds-cell:focus-visible{outline:2px solid var(--mark);outline-offset:-2px} .ds-gl{grid-column:1;grid-row:1;margin-bottom:9px;line-height:1} .ds-cp{grid-column:2;grid-row:1;font:500 11px var(--mono);color:var(--ink-3)} .ds-nm{grid-column:1/-1;font:600 14.5px/1.25 var(--ui)} .ds-var{grid-column:1/-1;font:500 11.5px/1.35 var(--mono);color:var(--ink-3)} .ds-var em{font-style:normal;font-family:var(--ui);color:var(--mark-text)} .ds-used::before{content:'';position:absolute;left:0;top:0;border-top:16px solid var(--mark);border-right:16px solid transparent}"
+    },
+    {
+      "name": "Rail",
+      "kind": "nav",
+      "refersTo": "button",
+      "description": "Sticky top rail: powerline wordmark left, history + Import + Export right.",
+      "html": "<header class=\"ds-rail\"><div class=\"ds-wm\"><span style=\"background:#fab387\">prompt</span><span style=\"background:#f9e2af\">bar</span><span style=\"background:#94e2d5;border-radius:0 7px 7px 0\">builder</span></div><div class=\"ds-acts\"><button class=\"ds-b\">Reset</button><span class=\"ds-sep\"></span><button class=\"ds-b ds-o\">Import</button><button class=\"ds-b ds-p\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M2 8h9M8 5l3 3-3 3M14 3v10\"/></svg>Export</button></div></header>",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-rail{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 20px;background:var(--ground)} .ds-wm{display:flex;height:28px;font:700 13px/1 var(--mono);color:#11111b;letter-spacing:.01em} .ds-wm span{display:flex;align-items:center;padding:0 .55em} .ds-wm span:first-child{border-radius:7px 0 0 7px} .ds-acts{display:flex;align-items:center;gap:6px} .ds-sep{width:1px;height:22px;background:var(--rule)} .ds-b{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--ink);font:500 14px var(--ui);cursor:pointer} .ds-b:hover{background:var(--raise)} .ds-o{border-color:var(--rule-2)} .ds-o:hover{border-color:var(--ink-3)} .ds-p{background:var(--mark);border-color:var(--mark);color:var(--mark-ink);font-weight:600} .ds-p:hover{background:var(--mark);filter:brightness(1.07)} .ds-b:focus-visible{outline:2px solid var(--mark);outline-offset:2px}"
+    },
+    {
+      "name": "Contrast Badge",
+      "kind": "chip",
+      "refersTo": "badge-ok",
+      "description": "Status verdict: status-colored text on same hue at low alpha.",
+      "html": "<span class=\"ds-badge\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M3 8.5l3 3 7-7\"/></svg>9.9:1 · easy to read</span>",
+      "css": ":host{--ground:#11111b;--sheet:#181825;--raise:#1e1e2e;--rule:#313244;--rule-2:#45475a;--ink:#cdd6f4;--ink-2:#bac2de;--ink-3:#a6adc8;--mark:#fab387;--mark-ink:#11111b;--mark-text:#fab387;--mark-soft:rgba(250,179,135,.14);--ok:#a6e3a1;--ok-soft:rgba(166,227,161,.12);--ui:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace} .ds-badge{display:inline-flex;align-items:center;gap:7px;border-radius:6px;padding:5px 10px;font:500 13px var(--ui);background:var(--ok-soft);color:var(--ok)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Glyph Specimen Sheet",
+    "overview": "**Creative North Star: \"The Glyph Specimen Sheet\"**\n\nThe page is a type specimen for the user's own prompt. At the top sits the proof: a live terminal, rendered in real Nerd Font glyphs, that is also the place you edit. Everything beneath it is plates and an index, the way a foundry sheet lays out a font. Each separator and cap is a glyph plate labeled with its codepoint. Each module is an index cell showing its glyph, its codepoint and its `$variable`. The chrome is Catppuccin ink: a crust ground, mantle sheets, hairline surface rules. Peach is the proofing mark, the single color that says \"this one\" (selection, primary action, focus, caret, text selection).\n\nDensity is that of a working tool, not a dashboard. The terminal stays big (up to about 46vh), the inspector is one sticky sheet on the right, and the plates and index read as print rather than as cards in a form. The UI is dark-first. It follows the system into a real Catppuccin Latte light theme, but the terminal proof and the export code well stay dark because they show what a real terminal will render.\n\nThe world rejects the settings dashboard: sidebar lists, rows of form fields, white cards with drop shadows, and a second layout panel that duplicates the preview.",
+    "keyCharacteristics": [
+      "Catppuccin Mocha ink UI, with Catppuccin Latte ink as the light theme; the terminal proof is always a dark terminal.",
+      "Peach is the only accent for app state. Green, yellow and red appear only as status (contrast verdicts, notices, destructive actions).",
+      "Real Symbols Nerd Font glyphs are both the specimen material and the UI icon set (codicons).",
+      "Schibsted Grotesk sets the UI words. JetBrains Mono appears only where the content is code: terminal text, codepoints, `$variables`, hex values, export files, the wordmark.",
+      "Surfaces are flat and separated by hairline rules. Only floating layers get lift."
+    ],
+    "rules": [
+      {
+        "name": "The One Mark Rule",
+        "body": "Peach is the only app accent, and it always means \"chosen, primary, or focused\". Do not use it for decoration, headings, or a second meaning.",
+        "section": "colors"
+      },
+      {
+        "name": "The User's Colors Rule",
+        "body": "Segment colors belong to the user's prompt. App chrome never borrows teal, blue or mauve, so a user's palette can never be confused with UI state.",
+        "section": "colors"
+      },
+      {
+        "name": "The Proof Stays Dark Rule",
+        "body": "In the light theme the chrome turns Latte, but the terminal proof and the export code well keep Mocha ink (#11111b / #cdd6f4). They stand in for a real terminal.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono Means Machine Rule",
+        "body": "JetBrains Mono appears only on strings a terminal or config file would contain: commands, codepoints, `$variables`, hex values, TOML/zsh output, step numbers, the wordmark. Labels, headings and buttons are always Schibsted Grotesk.",
+        "section": "typography"
+      },
+      {
+        "name": "The Real Glyph Rule",
+        "body": "Icons and specimens come from the inlined Symbols Nerd Font (codicons for UI, the powerline and devicon ranges for specimens), set in their own font at weight 400 and line-height 1. Do not substitute Unicode dingbats, emoji or a second icon library.",
+        "section": "typography"
+      },
+      {
+        "name": "No Uppercase Labels Rule",
+        "body": "Every label and heading is sentence case with no tracking. No eyebrows or overlines.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Sheet Rule",
+        "body": "Plates, cells, the proof sheet and the inspector are separated by rules and tone, never by shadow. A shadow means \"this is floating over the page right now\".",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep peach as the only app-state accent: primary fill, selected border plus 12–14% tint, 2px focus outline, selection underline.",
+      "**Do** set every icon in the inlined Symbols Nerd Font (codicons) at weight 400, line-height 1, 13–16px in UI.",
+      "**Do** label every glyph specimen with its codepoint in 11–11.5px JetBrains Mono, ink-muted.",
+      "**Do** separate flat surfaces with 1px surface-rule hairlines and tonal steps (crust, mantle, base).",
+      "**Do** use dashed surface-rule-strong borders only for places where something can be added or dropped.",
+      "**Do** switch peach-as-text to latte-mark-text (#b54708) in the light theme. Keep the terminal and code well in Mocha ink.",
+      "**Do** keep controls at 36px, with 28–32px only for compact controls nested in the terminal and inspector."
+    ],
+    "donts": [
+      "**Don't** put shadows on plates, cells, the proof sheet or the inspector at rest. Lift belongs to the picker, dialogs and bottom sheets only.",
+      "**Don't** set labels, headings or buttons in JetBrains Mono, or config strings in Schibsted Grotesk.",
+      "**Don't** color app chrome with the segment palette (teal, blue, mauve, pink). Those colors belong to the user's prompt.",
+      "**Don't** use Unicode dingbats, emoji or a second icon set in place of Nerd Font glyphs.",
+      "**Don't** add uppercase tracked eyebrows or kickers above headings. Section heads are sentence case, with a same-line muted description.",
+      "**Don't** add a layout panel or form rows that duplicate the terminal proof. Editing happens in the proof, in the lanes fused to it, and in the inspector."
+    ]
+  }
+}
