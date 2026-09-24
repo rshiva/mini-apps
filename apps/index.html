@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Apps · rshiva</title>
+<meta name="description" content="Small, single-file web apps by rshiva.">
+<style>
+:root {
+  --bg:#faf8f4; --card:#fff; --ink:#1a1814; --muted:#6b665f; --border:#ddd8cf; --accent:#c8820a;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#151412; --card:#1f1d1a; --ink:#f2ede4; --muted:#a39d94; --border:#34302b; --accent:#e8a53a; }
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+main { max-width:880px; margin:0 auto; padding:56px 16px; }
+h1 { font-size:2rem; letter-spacing:-0.02em; }
+.sub { color:var(--muted); margin:6px 0 32px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; list-style:none; }
+.card { display:block; height:100%; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:12px; color:inherit; text-decoration:none; transition:border-color .15s, transform .15s; }
+.card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.icon { font-size:1.6rem; }
+.card h2 { font-size:1.05rem; margin:10px 0 4px; }
+.card p { color:var(--muted); font-size:.92rem; }
+footer { margin-top:48px; color:var(--muted); font-size:.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Mini Apps</h1>
+  <p class="sub">Small tools that run entirely in your browser. No sign-up, no uploads.</p>
+  <ul class="grid" id="apps"></ul>
+  <footer>© rshiva</footer>
+</main>
+<script>
+// To add an app: create apps/<slug>/index.html and add an entry here.
+const APPS = [
+  { slug: "file-converter", name: "Folio", icon: "📄",
+    desc: "Any-to-any document converter: PDF, DOCX, Markdown, HTML and more." },
+];
+
+document.getElementById("apps").innerHTML = APPS.map(a => `
+  <li><a class="card" href="${a.slug}/">
+    <div class="icon">${a.icon}</div>
+    <h2>${a.name}</h2>
+    <p>${a.desc}</p>
+  </a></li>`).join("");
+</script>
+</body>
+</html>

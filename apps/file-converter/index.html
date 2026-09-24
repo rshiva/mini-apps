@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Folio · Any-to-Any Document Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.2/turndown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:#1a1814; --ink-mid:#4a4640; --ink-light:#8a8480;
+  --paper:#faf8f4; --paper-warm:#f2ede4; --paper-card:#fff;
+  --amber:#c8820a; --amber-light:#fef3d8; --amber-border:#e8c06a;
+  --green:#2d6a4f; --green-light:#d8f3dc;
+  --blue:#1a5fa8; --blue-light:#e8f0fb;
+  --red:#b83030; --red-light:#fde8e8;
+  --border:#ddd8cf; --border-strong:#c8c0b4;
+  --radius:8px; --radius-lg:14px;
+}
+body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; display:flex; flex-direction:column; }
+
+header { border-bottom:1px solid var(--border); padding:16px 28px; display:flex; align-items:center; gap:14px; background:var(--paper-card); }
+.logo-mark { width:36px; height:36px; background:var(--ink); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+header h1 { font-family:'Instrument Serif',serif; font-size:21px; font-weight:400; letter-spacing:-.3px; }
+header p { font-size:12px; color:var(--ink-light); margin-top:2px; }
+.hdr-badges { margin-left:auto; display:flex; gap:6px; }
+.badge { font-size:11px; font-weight:500; padding:3px 9px; border-radius:20px; letter-spacing:.3px; }
+.badge-amber { background:var(--amber-light); color:var(--amber); border:1px solid var(--amber-border); }
+.badge-info { background:var(--blue-light); color:var(--blue); border:1px solid #b0cef0; }
+
+.workspace { display:grid; grid-template-columns:330px 1fr; flex:1; min-height:0; }
+.sidebar { border-right:1px solid var(--border); background:var(--paper-card); padding:20px 18px; display:flex; flex-direction:column; gap:16px; overflow-y:auto; }
+.section-label { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:var(--ink-light); margin-bottom:8px; }
+
+/* Format picker */
+.fmt-row { display:grid; grid-template-columns:1fr 28px 1fr; gap:6px; align-items:end; }
+.fmt-arrow { text-align:center; color:var(--ink-light); font-size:16px; padding-bottom:8px; }
+.fmt-hint { font-size:11px; color:var(--ink-light); margin-top:6px; line-height:1.45; }
+.fmt-hint.warn { color:#7a4e08; }
+
+.drop-zone { border:1.5px dashed var(--border-strong); border-radius:var(--radius-lg); padding:22px 14px; text-align:center; cursor:pointer; transition:all .2s; background:var(--paper); }
+.drop-zone:hover, .drop-zone.drag-over { border-color:var(--amber); background:var(--amber-light); }
+.drop-icon { width:36px; height:36px; margin:0 auto 8px; background:var(--paper-warm); border-radius:9px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); font-size:16px; }
+.drop-zone p.main { font-size:13px; font-weight:500; margin-bottom:3px; }
+.drop-zone p.sub { font-size:11px; color:var(--ink-light); }
+
+.note-box { border-radius:var(--radius); padding:10px 12px; font-size:12px; line-height:1.55; }
+.note-box.amber { background:var(--amber-light); color:#7a4e08; border:1px solid var(--amber-border); }
+.note-box.blue { background:var(--blue-light); color:#1040a0; border:1px solid #b0cef0; }
+.note-box strong { font-weight:600; }
+
+.img-zone { border:1.5px dashed var(--border); border-radius:var(--radius); padding:11px 14px; background:var(--paper); cursor:pointer; transition:all .2s; }
+.img-zone:hover { border-color:var(--amber); background:var(--amber-light); }
+.img-zone-label { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border-strong); flex-shrink:0; }
+.dot.loaded { background:var(--green); }
+.img-count { font-size:11px; color:var(--ink-light); margin-top:3px; margin-left:16px; }
+
+.meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.meta-grid .full { grid-column:1/-1; }
+label { font-size:12px; color:var(--ink-mid); display:block; margin-bottom:3px; }
+input[type="text"], select { width:100%; background:var(--paper); border:1px solid var(--border); border-radius:var(--radius); padding:7px 9px; font-size:12.5px; font-family:'DM Sans',sans-serif; color:var(--ink); outline:none; transition:border-color .2s; }
+input[type="text"]:focus, select:focus { border-color:var(--amber); }
+select.fmt { font-weight:500; padding:9px; }
+
+.toggle-group { display:flex; flex-direction:column; gap:7px; }
+.toggle-row { display:flex; align-items:center; justify-content:space-between; padding:8px 11px; background:var(--paper); border-radius:var(--radius); border:1px solid var(--border); font-size:13px; }
+.toggle-info { display:flex; flex-direction:column; gap:2px; }
+.toggle-desc { font-size:10px; color:var(--ink-light); }
+.toggle { width:34px; height:19px; background:var(--border-strong); border-radius:20px; position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
+.toggle.on { background:var(--amber); }
+.toggle::after { content:''; position:absolute; top:2px; left:2px; width:15px; height:15px; background:#fff; border-radius:50%; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.toggle.on::after { transform:translateX(15px); }
+
+.generate-btn { width:100%; padding:12px; background:var(--ink); color:#fff; border:none; border-radius:var(--radius); font-size:13.5px; font-weight:500; font-family:'DM Sans',sans-serif; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+.generate-btn:hover { background:#2d2b28; }
+.generate-btn:disabled { opacity:.45; cursor:not-allowed; }
+
+.file-pill { display:flex; align-items:center; gap:8px; padding:8px 11px; background:var(--green-light); border:1px solid #b7dfc1; border-radius:var(--radius); font-size:12.5px; margin-top:8px; }
+.file-pill strong { font-weight:500; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.file-pill .file-size { color:var(--ink-light); font-size:11px; flex-shrink:0; }
+.divider { border:none; border-top:1px solid var(--border); }
+
+/* Preview */
+.preview-area { display:flex; flex-direction:column; overflow:hidden; }
+.preview-toolbar { padding:10px 18px; border-bottom:1px solid var(--border); background:var(--paper-card); display:flex; align-items:center; gap:10px; }
+.preview-toolbar span { font-size:13px; color:var(--ink-mid); font-weight:500; }
+.preview-tabs { display:flex; gap:3px; }
+.tab-btn { padding:5px 11px; border-radius:6px; border:1px solid transparent; font-size:12px; font-family:'DM Sans',sans-serif; cursor:pointer; background:transparent; color:var(--ink-mid); }
+.tab-btn.active { background:var(--paper-warm); border-color:var(--border); color:var(--ink); }
+.preview-device { display:flex; align-items:flex-start; justify-content:center; padding:28px 20px; background:var(--paper-warm); flex:1; overflow-y:auto; }
+.kindle-frame { width:100%; max-width:530px; background:var(--paper-card); border-radius:4px; border:1px solid var(--border-strong); box-shadow:0 2px 20px rgba(0,0,0,.08); overflow:hidden; }
+.kindle-bar { padding:9px 14px; background:var(--paper-warm); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; font-size:11px; color:var(--ink-light); }
+.kbar-title { font-weight:500; color:var(--ink-mid); margin-right:auto; }
+.kindle-content { padding:36px 44px; font-family:'Instrument Serif',serif; font-size:16px; line-height:1.8; color:#2a2520; min-height:480px; }
+.kindle-content h1 { font-size:25px; font-weight:400; letter-spacing:-.4px; margin:0 0 10px; color:#1a1814; line-height:1.25; }
+.kindle-content h2 { font-size:19px; font-weight:400; font-style:italic; margin:36px 0 13px; padding-bottom:7px; border-bottom:1px solid var(--border); }
+.kindle-content h3 { font-family:'DM Sans',sans-serif; font-weight:500; margin:26px 0 9px; text-transform:uppercase; letter-spacing:.8px; font-size:11.5px; }
+.kindle-content p { margin:0 0 1em; }
+.kindle-content ul, .kindle-content ol { padding-left:20px; margin:0 0 1em; }
+.kindle-content li { margin-bottom:3px; }
+.kindle-content strong { font-weight:500; font-family:'DM Sans',sans-serif; font-size:15px; }
+.kindle-content a { color:var(--amber); text-decoration:none; }
+.kindle-content img { max-width:100%; height:auto; border-radius:var(--radius); margin:14px 0; display:block; }
+.kindle-content blockquote { border-left:3px solid var(--amber-border); margin:14px 0; padding:4px 14px; color:var(--ink-mid); font-style:italic; }
+.kindle-content pre { background:#1e1c18; color:#e8e0d0; border-radius:var(--radius); padding:14px 18px; overflow-x:auto; margin:14px 0; font-size:12.5px; line-height:1.6; font-family:'DM Mono',monospace; }
+.kindle-content code { font-family:'DM Mono',monospace; font-size:12.5px; }
+.kindle-content p code, .kindle-content li code { background:var(--paper-warm); border:1px solid var(--border); padding:1px 5px; border-radius:4px; font-size:12px; color:#8b3a0a; }
+.kindle-content hr { border:none; border-top:1px solid var(--border); margin:28px 0; }
+.kindle-content table { width:100%; border-collapse:collapse; font-family:'DM Sans',sans-serif; font-size:13px; margin:14px 0; }
+.kindle-content th, .kindle-content td { padding:7px 10px; border:1px solid var(--border); text-align:left; }
+.kindle-content th { background:var(--paper-warm); }
+.token-comment { color:#7a7460; font-style:italic; }
+.token-key { color:#88b8d8; }
+.token-string { color:#88b87a; }
+.token-keyword { color:#d08060; }
+
+#rawView { width:100%; max-width:680px; font-family:'DM Mono',monospace; font-size:12px; line-height:1.6; white-space:pre-wrap; word-break:break-word; background:var(--paper-card); border-radius:4px; padding:22px; border:1px solid var(--border-strong); }
+
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:10px; color:var(--ink-light); padding:60px 20px; text-align:center; }
+.empty-icon { width:60px; height:60px; background:var(--paper-warm); border-radius:15px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); font-size:26px; }
+.empty-state h3 { font-size:15px; font-weight:500; color:var(--ink-mid); }
+.empty-state p { font-size:12px; max-width:260px; }
+
+.status-bar { padding:7px 18px; border-top:1px solid var(--border); background:var(--paper-card); display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-light); min-height:34px; }
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--border-strong); flex-shrink:0; }
+.status-dot.ready { background:var(--green); }
+.status-dot.working { background:var(--amber); animation:pulse 1s infinite; }
+.status-dot.error { background:var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+.progress-bar { height:2px; background:var(--border); border-radius:2px; overflow:hidden; flex:1; max-width:180px; }
+.progress-fill { height:100%; background:var(--amber); transition:width .3s; width:0; }
+
+.pdf-pages { display:flex; flex-direction:column; gap:5px; max-height:220px; overflow-y:auto; }
+.pdf-page-item { font-size:11.5px; padding:6px 10px; background:var(--paper); border-radius:6px; border:1px solid var(--border); display:flex; gap:8px; }
+.pdf-page-num { color:var(--ink-light); min-width:28px; font-family:'DM Mono',monospace; flex-shrink:0; }
+.pdf-page-text { color:var(--ink-mid); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+
+/* Chapter list */
+.chapter-list { display:flex; flex-direction:column; gap:4px; max-height:340px; overflow-y:auto; }
+.chapter-item { display:flex; align-items:flex-start; gap:7px; padding:8px 10px; background:var(--paper); border:1px solid var(--border); border-radius:var(--radius); cursor:grab; user-select:none; transition:all .15s; }
+.chapter-item.drag-over-item { border-color:var(--amber); background:var(--amber-light); }
+.chapter-item.dragging { opacity:.38; }
+.chapter-item.chapter-index { background:var(--blue-light); border-color:#b0cef0; }
+.chapter-handle { color:var(--ink-light); font-size:12px; flex-shrink:0; padding-top:2px; }
+.chapter-num { font-size:11px; font-family:'DM Mono',monospace; color:var(--ink-light); min-width:16px; flex-shrink:0; padding-top:2px; }
+.chapter-meta { flex:1; display:flex; flex-direction:column; gap:2px; min-width:0; }
+.chapter-name { font-size:12.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chapter-filename { font-size:10.5px; color:var(--ink-light); font-family:'DM Mono',monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chapter-subtopics { display:flex; flex-wrap:wrap; gap:3px; margin-top:4px; }
+.subtopic-pill { font-size:10px; padding:2px 6px; border-radius:4px; white-space:nowrap; max-width:120px; overflow:hidden; text-overflow:ellipsis; }
+.subtopic-pill.level-2 { background:var(--paper-warm); border:1px solid var(--border); color:var(--ink-mid); }
+.subtopic-pill.level-3 { background:var(--paper); border:1px solid var(--border); color:var(--ink-light); font-style:italic; }
+.subtopic-pill.more { border:1px dashed var(--border); color:var(--ink-light); }
+.chapter-remove { background:none; border:none; color:var(--ink-light); cursor:pointer; font-size:13px; padding-top:2px; }
+.chapter-remove:hover { color:var(--red); }
+.small-btn { font-size:11px; padding:3px 8px; border:1px solid var(--border); border-radius:5px; background:var(--paper); cursor:pointer; font-family:inherit; color:var(--ink-mid); }
+
+/* Hidden PDF render surface */
+#pdfRender { position:fixed; left:-9999px; top:0; width:700px; background:#fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <rect x="3" y="2" width="11" height="14" rx="1.5" fill="white" opacity=".9"/>
+      <rect x="5" y="5" width="7" height="1" fill="#c8820a" rx=".5"/>
+      <rect x="5" y="7.5" width="5" height="1" fill="white" opacity=".5" rx=".5"/>
+      <rect x="5" y="10" width="6" height="1" fill="white" opacity=".5" rx=".5"/>
+      <path d="M12 14l4-8v10" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div><h1>Folio</h1><p>Convert any document format to any other</p></div>
+  <div class="hdr-badges">
+    <span class="badge badge-info">Kindle ✓</span>
+    <span class="badge badge-amber">Apple Books ✓</span>
+  </div>
+</header>
+
+<div class="workspace">
+<aside class="sidebar">
+
+  <!-- Format picker -->
+  <div>
+    <div class="section-label">Conversion</div>
+    <div class="fmt-row">
+      <div><label>From</label>
+        <select id="inFmt" class="fmt" onchange="onInputFormatChange()">
+          <option value="md">Markdown (.md)</option>
+          <option value="html">HTML (.html)</option>
+          <option value="pdf">PDF (.pdf)</option>
+          <option value="txt">Plain text (.txt)</option>
+        </select>
+      </div>
+      <div class="fmt-arrow">→</div>
+      <div><label>To</label>
+        <select id="outFmt" class="fmt" onchange="onOutputFormatChange()">
+          <option value="epub">EPUB (.epub)</option>
+          <option value="html">HTML (.html)</option>
+          <option value="md">Markdown (.md)</option>
+          <option value="pdf">PDF (.pdf)</option>
+          <option value="txt">Plain text (.txt)</option>
+        </select>
+      </div>
+    </div>
+    <div class="fmt-hint" id="fmtHint"></div>
+  </div>
+
+  <!-- Single-file panel (md / txt / pdf) -->
+  <div id="panel-single">
+    <div class="drop-zone" id="dropZoneSingle" onclick="document.getElementById('singleInput').click()">
+      <div class="drop-icon" id="singleIcon">📝</div>
+      <p class="main" id="singleMain">Drop .md file here</p>
+      <p class="sub">or click to browse</p>
+    </div>
+    <input type="file" id="singleInput" style="display:none">
+    <div id="singlePill" style="display:none"></div>
+    <div id="pdfPagesList" style="display:none;margin-top:10px">
+      <div class="section-label">Extracted pages</div>
+      <div class="pdf-pages" id="pdfPagesContainer"></div>
+    </div>
+  </div>
+
+  <!-- Multi-HTML panel -->
+  <div id="panel-html" style="display:none">
+    <div class="drop-zone" id="dropZoneHtml" onclick="document.getElementById('htmlInput').click()">
+      <div class="drop-icon">🧩</div>
+      <p class="main">Drop .html files here</p>
+      <p class="sub">multiple files → one document · index.html sets order</p>
+    </div>
+    <input type="file" id="htmlInput" accept=".html,.htm" multiple style="display:none">
+    <div id="htmlChapterWrap" style="display:none;margin-top:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span class="section-label" style="margin:0">Chapters — drag to reorder</span>
+        <button class="small-btn" onclick="document.getElementById('htmlInput').click()">+ Add more</button>
+      </div>
+      <div id="htmlChapterList" class="chapter-list"></div>
+    </div>
+  </div>
+
+  <!-- Images (shared) -->
+  <div>
+    <div class="img-zone" onclick="document.getElementById('imgInput').click()">
+      <div class="img-zone-label"><span class="dot" id="imgDot"></span><span>Image files (optional)</span></div>
+      <div class="img-count" id="imgCount">No images loaded</div>
+    </div>
+    <input type="file" id="imgInput" accept="image/*" multiple style="display:none">
+  </div>
+
+  <hr class="divider">
+
+  <div>
+    <div class="section-label">Document Metadata</div>
+    <div class="meta-grid">
+      <div class="full"><label>Title</label><input type="text" id="bookTitle" placeholder="Auto-detected"></div>
+      <div><label>Author</label><input type="text" id="bookAuthor" placeholder="Author name"></div>
+      <div><label>Language</label>
+        <select id="bookLang">
+          <option value="en">English</option><option value="es">Spanish</option>
+          <option value="fr">French</option><option value="de">German</option>
+          <option value="ja">Japanese</option><option value="zh">Chinese</option>
+          <option value="ta">Tamil</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div>
+    <div class="section-label">Options</div>
+    <div class="toggle-group">
+      <div class="toggle-row" data-for="epub html pdf">
+        <div class="toggle-info"><span>Table of contents</span><span class="toggle-desc">Generate from headings</span></div>
+        <div class="toggle on" id="toggleToc" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row" data-for="epub html pdf">
+        <div class="toggle-info"><span>Code syntax highlight</span><span class="toggle-desc">Dark blocks for YAML, bash, etc.</span></div>
+        <div class="toggle on" id="toggleSyntax" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row" data-for="epub html md pdf">
+        <div class="toggle-info"><span>Embed images</span><span class="toggle-desc">Bundle images into the output</span></div>
+        <div class="toggle on" id="toggleImages" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row" data-for="epub">
+        <div class="toggle-info"><span>Kindle-safe body CSS</span><span class="toggle-desc">1em text — preserves reader font control</span></div>
+        <div class="toggle on" id="toggleKindleSafe" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="generate-btn" id="generateBtn" onclick="convert()" disabled>
+    <span id="genIcon">⬇</span> <span id="genLabel">Convert to EPUB</span>
+  </button>
+</aside>
+
+<div class="preview-area">
+  <div class="preview-toolbar">
+    <span>Preview</span>
+    <div class="preview-tabs">
+      <button class="tab-btn active" onclick="switchTab('render',this)">Rendered</button>
+      <button class="tab-btn" onclick="switchTab('raw',this)">Source</button>
+      <button class="tab-btn" onclick="switchTab('toc',this)">Contents</button>
+    </div>
+  </div>
+  <div class="preview-device">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🔄</div>
+      <h3>No document loaded</h3>
+      <p>Pick input and output formats, then drop a file to preview and convert</p>
+    </div>
+    <div class="kindle-frame" id="kindleFrame" style="display:none">
+      <div class="kindle-bar"><span class="kbar-title" id="kbarTitle">Document</span><span id="kbarInfo"></span></div>
+      <div class="kindle-content" id="kindleContent"></div>
+    </div>
+    <div id="rawView" style="display:none"></div>
+    <div class="kindle-frame" id="tocFrame" style="display:none">
+      <div class="kindle-bar"><span class="kbar-title">Table of Contents</span></div>
+      <div class="kindle-content" id="tocContent"></div>
+    </div>
+  </div>
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Ready. Drop a file to begin.</span>
+    <div class="progress-bar" id="progressBar" style="display:none"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+</div>
+
+<div id="pdfRender"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let inFmt = 'md', outFmt = 'epub', currentTab = 'render';
+let sourceContent = '';   // md / txt raw text
+let pdfPages = [];        // [{pageNum,text}]
+let htmlFiles = [];       // [{name,content,title,subtopics,order,depth}]
+let imageMap = {};        // normalizedFilename → dataURL
+
+const FMT = {
+  md:  { label:'Markdown', ext:'.md',   accept:'.md,.markdown', icon:'📝', mime:'text/markdown' },
+  html:{ label:'HTML',     ext:'.html', accept:'.html,.htm',    icon:'🧩', mime:'text/html' },
+  pdf: { label:'PDF',      ext:'.pdf',  accept:'.pdf',          icon:'📄', mime:'application/pdf' },
+  txt: { label:'Plain text',ext:'.txt', accept:'.txt',          icon:'📃', mime:'text/plain' },
+  epub:{ label:'EPUB',     ext:'.epub', accept:'.epub',         icon:'📚', mime:'application/epub+zip' },
+};
+
+const HINTS = {
+  'md>epub':'Reflowable EPUB. Works on Kindle (send-to-Kindle converts it) and Apple Books.',
+  'html>epub':'Each HTML file becomes a chapter. If an index.html is included, its link order sets the chapter order.',
+  'pdf>epub':'Text is extracted page by page. Images inside the PDF are not extracted — add them separately.',
+  'txt>epub':'Blank-line-separated paragraphs. Lines starting with # become headings.',
+  '*>html':'Single self-contained .html with inline CSS. Images are embedded as data URIs.',
+  '*>md':'Markdown via HTML→MD conversion. With images, you get a .zip containing the .md and an images/ folder.',
+  '*>pdf':'Rendered in the browser to a paged A4 PDF. Fixed layout — not reflowable on e-readers.',
+  '*>txt':'All formatting stripped; headings and paragraphs separated by blank lines.',
+  'pdf>md':'Heading/list detection is heuristic — review the output for layout artifacts.',
+};
+
+// ══════════════════════════════════════════════════════════
+// FORMAT PICKER
+// ══════════════════════════════════════════════════════════
+function onInputFormatChange() {
+  inFmt = document.getElementById('inFmt').value;
+  resetDocument();
+  const single = document.getElementById('panel-single');
+  const multi  = document.getElementById('panel-html');
+  single.style.display = inFmt === 'html' ? 'none' : 'block';
+  multi.style.display  = inFmt === 'html' ? 'block' : 'none';
+  document.getElementById('singleInput').accept = FMT[inFmt].accept;
+  document.getElementById('singleIcon').textContent = FMT[inFmt].icon;
+  document.getElementById('singleMain').textContent = `Drop ${FMT[inFmt].ext} file here`;
+  document.getElementById('pdfPagesList').style.display = 'none';
+  updateHint();
+}
+function onOutputFormatChange() {
+  outFmt = document.getElementById('outFmt').value;
+  document.getElementById('genLabel').textContent = `Convert to ${FMT[outFmt].label}`;
+  document.querySelectorAll('.toggle-row[data-for]').forEach(row =>
+    row.style.display = row.dataset.for.split(' ').includes(outFmt) ? 'flex' : 'none');
+  updateHint();
+}
+function updateHint() {
+  const el = document.getElementById('fmtHint');
+  const specific = HINTS[`${inFmt}>${outFmt}`], generic = HINTS[`*>${outFmt}`];
+  const same = inFmt === outFmt;
+  el.className = 'fmt-hint' + (same || outFmt==='pdf' ? ' warn' : '');
+  el.textContent = same ? `Same format in and out — output will be a cleaned/normalized ${FMT[outFmt].label}.`
+                 : [specific, specific && generic && !specific.includes(generic) ? '' : generic].filter(Boolean).join(' ') || generic || '';
+}
+function resetDocument() {
+  sourceContent=''; pdfPages=[]; htmlFiles=[];
+  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('singlePill').style.display = 'none';
+  document.getElementById('htmlChapterWrap').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'flex';
+  ['kindleFrame','rawView','tocFrame'].forEach(id => document.getElementById(id).style.display='none');
+  setStatus('', 'Ready. Drop a file to begin.');
+}
+onOutputFormatChange(); updateHint();
+
+// ══════════════════════════════════════════════════════════
+// FILE INPUT WIRING
+// ══════════════════════════════════════════════════════════
+document.getElementById('singleInput').addEventListener('change', e => loadSingle(e.target.files[0]));
+document.getElementById('htmlInput').addEventListener('change', e => loadHtmlFiles([...e.target.files]));
+document.getElementById('imgInput').addEventListener('change', e => loadImages(e.target.files));
+
+function setupDrop(zoneId, handler) {
+  const zone = document.getElementById(zoneId);
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const files = [...e.dataTransfer.files];
+    const imgs = files.filter(f => f.type.startsWith('image/'));
+    const docs = files.filter(f => !f.type.startsWith('image/'));
+    if (docs.length) handler(docs);
+    if (imgs.length) loadImages(imgs);
+  });
+}
+setupDrop('dropZoneSingle', files => loadSingle(files[0]));
+setupDrop('dropZoneHtml', files => loadHtmlFiles(files.filter(f => /\.html?$/i.test(f.name))));
+
+function loadSingle(file) {
+  if (!file) return;
+  if (inFmt === 'pdf') return loadPdf(file);
+  const r = new FileReader();
+  r.onload = e => {
+    sourceContent = e.target.result;
+    if (inFmt === 'md') autoTitle(sourceContent.match(/^#\s+(.+)/m)?.[1]);
+    else autoTitle(sourceContent.split('\n').find(l => l.trim())?.replace(/^#+\s*/,'').slice(0,80));
+    showFilePill(file); renderPreview();
+    document.getElementById('generateBtn').disabled = false;
+    setStatus('ready', `Loaded: ${file.name} · ${countWords(sourceContent).toLocaleString()} words`);
+  };
+  r.readAsText(file);
+}
+
+async function loadPdf(file) {
+  setStatus('working','Extracting text from PDF…');
+  document.getElementById('generateBtn').disabled = true;
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    pdfPages = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      setStatus('working', `Extracting page ${i} of ${pdf.numPages}…`); setProgress(Math.round(i/pdf.numPages*65));
+      const tc = await (await pdf.getPage(i)).getTextContent();
+      pdfPages.push({ pageNum:i, text: groupPdfText(tc.items).join('\n') });
+    }
+    setProgress(0);
+    autoTitle(pdfPages[0]?.text.split('\n')[0]?.trim().slice(0,80));
+    showFilePill(file);
+    document.getElementById('pdfPagesList').style.display = 'block';
+    document.getElementById('pdfPagesContainer').innerHTML = pdfPages.map(p =>
+      `<div class="pdf-page-item"><span class="pdf-page-num">p.${p.pageNum}</span><span class="pdf-page-text">${escHtml(p.text.slice(0,120))}</span></div>`).join('');
+    renderPreview();
+    document.getElementById('generateBtn').disabled = false;
+    setStatus('ready', `Extracted ${pdf.numPages} pages · ${pdfPages.reduce((a,p)=>a+countWords(p.text),0).toLocaleString()} words`);
+  } catch(err) { setStatus('error','PDF extraction failed: '+err.message); }
+}
+function groupPdfText(items) {
+  const byY = {};
+  items.forEach(it => { const y = Math.round(it.transform[5]); (byY[y] = byY[y]||[]).push(it.str); });
+  return Object.keys(byY).sort((a,b)=>b-a).map(y => byY[y].join(' ').trim()).filter(Boolean);
+}
+
+function loadImages(files) {
+  [...files].forEach(file => {
+    const r = new FileReader();
+    r.onload = e => {
+      imageMap[normalizeFilename(file.name)] = e.target.result;
+      const n = Object.keys(imageMap).length;
+      document.getElementById('imgDot').classList.add('loaded');
+      document.getElementById('imgCount').textContent = `${n} image${n!==1?'s':''} loaded`;
+      if (hasContent()) renderPreview();
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// MULTI-HTML: index-aware ordering + chapter tree
+// ══════════════════════════════════════════════════════════
+async function loadHtmlFiles(files) {
+  if (!files?.length) return;
+  const loaded = await Promise.all([...files].map(file => new Promise(res => {
+    const r = new FileReader(); r.onload = e => res({ name:file.name, content:e.target.result }); r.readAsText(file);
+  })));
+  const existing = new Set(htmlFiles.map(f => f.name));
+  loaded.forEach(raw => { if (!existing.has(raw.name)) { htmlFiles.push(enrichFile(raw)); existing.add(raw.name); } });
+  sortByIndex();
+  autoTitle(htmlFiles.find(f => !isIndexFile(f.name))?.title);
+  renderChapterList(); renderPreview();
+  document.getElementById('generateBtn').disabled = false;
+  const idx = htmlFiles.find(f => isIndexFile(f.name));
+  setStatus('ready', `${htmlFiles.length} file${htmlFiles.length!==1?'s':''} loaded${idx ? ' · ordered from '+idx.name : ''}`);
+}
+function enrichFile(raw) {
+  const doc = new DOMParser().parseFromString(raw.content, 'text/html');
+  const titleEl = doc.querySelector('title') || doc.querySelector('h1');
+  const title = (titleEl?.textContent || raw.name.replace(/\.html?$/i,'')).trim();
+  ['script','style','nav','header','footer','aside','noscript','iframe','form'].forEach(t => doc.querySelectorAll(t).forEach(el => el.remove()));
+  const subtopics = [...doc.querySelectorAll('h2, h3')].map(el => ({ level:+el.tagName[1], text:el.textContent.trim() })).filter(s => s.text);
+  return { name:raw.name, content:raw.content, title, subtopics, order:9999, depth:0 };
+}
+function isIndexFile(name) { return /^(index|toc|contents|readme|_toc|nav)\.(html?|md)$/i.test(name); }
+function parseIndexOrder(indexFile) {
+  const doc = new DOMParser().parseFromString(indexFile.content, 'text/html');
+  const order = [], seen = new Set();
+  doc.querySelectorAll('a[href]').forEach(a => {
+    const fn = (a.getAttribute('href')||'').replace(/[?#].*$/,'').split('/').pop();
+    if (!fn || seen.has(fn) || !/\.html?$/i.test(fn) || isIndexFile(fn)) return;
+    seen.add(fn);
+    let depth = 0, n = a.parentElement; while (n) { if (n.tagName==='LI') depth++; n = n.parentElement; }
+    order.push({ filename:fn, depth:Math.max(0, depth-1) });
+  });
+  return order;
+}
+function sortByIndex() {
+  const idx = htmlFiles.find(f => isIndexFile(f.name));
+  if (!idx) {
+    const num = s => s.replace(/(\d+)/g, n => n.padStart(6,'0'));
+    htmlFiles.sort((a,b) => num(a.name).localeCompare(num(b.name)));
+    htmlFiles.forEach((f,i) => f.order = i); return;
+  }
+  const pos = {}; parseIndexOrder(idx).forEach((e,i) => pos[e.filename] = { pos:i, depth:e.depth });
+  htmlFiles.forEach(f => { const e = pos[f.name]; f.order = e ? e.pos : 9000 + htmlFiles.indexOf(f); f.depth = e ? e.depth : 0; });
+  htmlFiles.sort((a,b) => a.order - b.order);
+}
+function renderChapterList() {
+  const wrap = document.getElementById('htmlChapterWrap'), list = document.getElementById('htmlChapterList');
+  if (!htmlFiles.length) { wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  let n = 0;
+  list.innerHTML = htmlFiles.map((f,i) => {
+    const isIdx = isIndexFile(f.name); if (!isIdx) n++;
+    const subs = f.subtopics?.length ? `<div class="chapter-subtopics">${f.subtopics.slice(0,4).map(s => `<span class="subtopic-pill level-${s.level}">${escHtml(s.text)}</span>`).join('')}${f.subtopics.length>4 ? `<span class="subtopic-pill more">+${f.subtopics.length-4} more</span>` : ''}</div>` : '';
+    return `<div class="chapter-item${isIdx?' chapter-index':''}" draggable="true" style="padding-left:${10+(f.depth||0)*14}px"
+      ondragstart="cDragStart(event,${i})" ondragover="cDragOver(event,${i})" ondragleave="cDragLeave(event)" ondrop="cDrop(event,${i})" ondragend="cDragEnd()">
+      <span class="chapter-handle">⠿</span><span class="chapter-num">${isIdx?'≡':n}</span>
+      <div class="chapter-meta"><span class="chapter-name">${escHtml(f.title)}</span><span class="chapter-filename">${escHtml(f.name)}</span>${subs}</div>
+      <button class="chapter-remove" onclick="removeChapter(${i})" title="Remove">✕</button></div>`;
+  }).join('');
+}
+function removeChapter(i) {
+  htmlFiles.splice(i,1); sortByIndex(); renderChapterList();
+  if (!htmlFiles.length) resetDocument(); else { renderPreview(); setStatus('ready', `${htmlFiles.length} file(s)`); }
+}
+let dragSrc = null;
+function cDragStart(e,i){ dragSrc=i; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
+function cDragOver(e,i){ e.preventDefault(); document.querySelectorAll('.chapter-item').forEach(el=>el.classList.remove('drag-over-item')); if (i!==dragSrc) e.currentTarget.classList.add('drag-over-item'); }
+function cDragLeave(e){ e.currentTarget.classList.remove('drag-over-item'); }
+function cDrop(e,i){ e.preventDefault(); if (dragSrc===null||dragSrc===i) return; const m = htmlFiles.splice(dragSrc,1)[0]; htmlFiles.splice(i,0,m); htmlFiles.forEach((f,k)=>f.order=k); dragSrc=null; renderChapterList(); renderPreview(); }
+function cDragEnd(){ dragSrc=null; document.querySelectorAll('.chapter-item').forEach(el=>el.classList.remove('dragging','drag-over-item')); }
+
+// ══════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════
+function hasContent() { return !!(sourceContent || pdfPages.length || htmlFiles.length); }
+function normalizeFilename(raw) {
+  let name = raw; try { name = decodeURIComponent(raw); } catch(e) {}
+  name = name.split('/').pop().split('\\').pop();
+  const d = name.lastIndexOf('.');
+  let stem = d>0 ? name.slice(0,d) : name, ext = d>0 ? name.slice(d).toLowerCase() : '';
+  return stem.replace(/[^a-zA-Z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'') + ext;
+}
+function autoTitle(s) { if (s && !document.getElementById('bookTitle').value) document.getElementById('bookTitle').value = s.replace(/<[^>]+>/g,'').trim(); }
+function showFilePill(file) {
+  const el = document.getElementById('singlePill'); el.style.display='flex'; el.className='file-pill';
+  el.innerHTML = `<span>${FMT[inFmt].icon}</span><strong>${escHtml(file.name)}</strong><span class="file-size">${(file.size/1024).toFixed(1)}KB</span>`;
+}
+function countWords(t) { return (t||'').trim().split(/\s+/).filter(Boolean).length; }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function slugify(s) { return s.toLowerCase().replace(/<[^>]+>/g,'').replace(/[^\w\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'') || 'section'; }
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function setStatus(state,msg) { document.getElementById('statusDot').className='status-dot '+state; document.getElementById('statusText').textContent=msg; }
+function setProgress(p) { document.getElementById('progressBar').style.display=(p>0&&p<100)?'block':'none'; document.getElementById('progressFill').style.width=p+'%'; }
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+}
+
+// ══════════════════════════════════════════════════════════
+// INPUT → INTERMEDIATE HTML
+// Returns { bodyHtml, usedImages:[{filename,data}] }
+// Images in bodyHtml reference "images/<normalized>" (rewritten later per output)
+// ══════════════════════════════════════════════════════════
+function extractHtmlBody(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  ['script','style','nav','header','footer','aside','noscript','iframe','form'].forEach(t => doc.querySelectorAll(t).forEach(el => el.remove()));
+  const body = doc.body || doc.documentElement;
+  body.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));   // avoid "id redefined" (Apple Books)
+  return body.innerHTML;
+}
+function txtToHtml(text) {
+  return text.split(/\n\s*\n/).map(block => {
+    const t = block.trim(); if (!t) return '';
+    const h = t.match(/^(#{1,3})\s+(.+)$/); if (h) return `<h${h[1].length}>${escHtml(h[2])}</h${h[1].length}>`;
+    if (t.split('\n').every(l => /^[-•*]\s+/.test(l.trim()))) return `<ul>${t.split('\n').map(l => `<li>${escHtml(l.trim().replace(/^[-•*]\s+/,''))}</li>`).join('')}</ul>`;
+    return `<p>${escHtml(t).replace(/\n/g,'<br/>')}</p>`;
+  }).join('\n');
+}
+function pdfToHtml(pages) {
+  return pages.map(p => {
+    const lines = p.text.split('\n').filter(l => l.trim()); if (!lines.length) return '';
+    return lines.map((line,i) => {
+      const t = line.trim();
+      if (i===0 && t.length<90 && /^[A-Z0-9\u00C0-\u024F]/.test(t)) return `<h2>${escHtml(t)}</h2>`;
+      if (/^[-•*]\s+/.test(t)) return `<li>${escHtml(t.replace(/^[-•*]\s+/,''))}</li>`;
+      if (/^\d+[.)]\s+/.test(t)) return `<li>${escHtml(t.replace(/^\d+[.)]\s+/,''))}</li>`;
+      return `<p>${escHtml(t)}</p>`;
+    }).join('\n').replace(/(<li>[^]*?<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+  }).join('\n<hr/>\n');
+}
+
+function buildIntermediate(embedImages, highlight = true) {
+  const usedImages = [], seen = new Set();
+  const useImg = key => { if (!seen.has(key)) { usedImages.push({ filename:key, data:imageMap[key] }); seen.add(key); } return `images/${key}`; };
+  let bodyHtml = '';
+
+  if (inFmt === 'md') {
+    let md = sourceContent;
+    if (embedImages) md = md.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m,alt,src) => { const k = normalizeFilename(src); return imageMap[k] ? `![${alt}](${useImg(k)})` : m; });
+    bodyHtml = marked.parse(md, { gfm:true, breaks:false });
+  } else if (inFmt === 'html') {
+    const files = htmlFiles.filter(f => !isIndexFile(f.name));
+    bodyHtml = files.map((f,i) => {
+      let body = extractHtmlBody(f.content);
+      if (embedImages) body = body.replace(/src="([^"]+)"/g, (m,src) => { const k = normalizeFilename(src); return imageMap[k] ? `src="${useImg(k)}"` : m; });
+      const head = files.length > 1 ? `<h1${i>0?' style="page-break-before:always"':''}>${escHtml(f.title)}</h1>` : '';
+      return head + body;
+    }).join('\n');
+  } else if (inFmt === 'pdf') {
+    bodyHtml = pdfToHtml(pdfPages);
+    if (embedImages) Object.keys(imageMap).forEach(useImg);
+  } else {
+    bodyHtml = txtToHtml(sourceContent);
+    if (embedImages) Object.keys(imageMap).forEach(useImg);
+  }
+
+  if (highlight && document.getElementById('toggleSyntax').classList.contains('on')) bodyHtml = applySyntaxHighlight(bodyHtml);
+
+  // Unique heading IDs (strict XML readers reject duplicates)
+  const seenIds = new Set();
+  const uniqueId = base => { let s = base.replace(/^[^a-zA-Z_]/,'h-'); if (!seenIds.has(s)) { seenIds.add(s); return s; } let n=2; while (seenIds.has(`${s}--${n}`)) n++; seenIds.add(`${s}--${n}`); return `${s}--${n}`; };
+  bodyHtml = bodyHtml.replace(/<h([1-3])([^>]*)>/g, (_,l,a) => `<h${l}${a.replace(/\s+id="[^"]*"/gi,'')}>`);
+  bodyHtml = bodyHtml.replace(/<h([1-3])([^>]*)>(.*?)<\/h\1>/g, (_,l,a,t) => `<h${l}${a} id="${uniqueId(slugify(t))}">${t}</h${l}>`);
+
+  return { bodyHtml, usedImages };
+}
+function headingsOf(html) {
+  const re = /<h([1-3])[^>]*id="([^"]*)"[^>]*>(.*?)<\/h\1>/gi, out = []; let m;
+  while ((m = re.exec(html)) !== null) out.push({ level:+m[1], id:m[2], text:m[3].replace(/<[^>]+>/g,'') });
+  return out;
+}
+function inlineImages(html, usedImages) {
+  usedImages.forEach(img => { html = html.split(`images/${img.filename}`).join(img.data); });
+  return html;
+}
+
+// Syntax highlight (yaml / bash)
+function applySyntaxHighlight(html) {
+  return html.replace(/<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>/g, (_,attrs,code) => {
+    const lang = (attrs.match(/class="language-(\w+)"/)||[])[1] || 'text';
+    return `<pre><code class="language-${lang}">${highlightCode(code,lang)}</code></pre>`;
+  });
+}
+// Single-pass tokenizer: one combined regex, each source char is consumed exactly once,
+// so inserted <span> markup can never be re-matched by a later rule.
+const HL_RULES = {
+  yaml: [
+    ['comment', /#[^\n]*/],
+    ['string',  /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/],
+    ['key',     /^[ \t-]*[A-Za-z0-9_.\-]+(?=\s*:)/m],
+  ],
+  bash: [
+    ['comment', /#[^\n]*/],
+    ['string',  /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/],
+    ['keyword', /\b(?:docker|kubectl|helm|terraform|git|echo|sudo|apt-get|npm|cd|ls|cat|chmod|grep|touch|export|if|then|else|fi|for|do|done|run|name)\b/],
+  ],
+  python: [
+    ['comment', /#[^\n]*/],
+    ['string',  /"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/],
+    ['keyword', /\b(?:def|class|return|import|from|if|elif|else|for|while|in|not|and|or|try|except|finally|with|as|lambda|yield|pass|None|True|False)\b/],
+  ],
+  js: [
+    ['comment', /\/\/[^\n]*|\/\*[\s\S]*?\*\//],
+    ['string',  /`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/],
+    ['keyword', /\b(?:const|let|var|function|return|if|else|for|while|import|export|from|class|new|await|async|try|catch|throw|this|null|undefined|true|false)\b/],
+  ],
+  go: [
+    ['comment', /\/\/[^\n]*|\/\*[\s\S]*?\*\//],
+    ['string',  /`[^`]*`|"(?:[^"\\]|\\.)*"/],
+    ['keyword', /\b(?:package|import|func|return|if|else|for|range|var|const|type|struct|interface|go|defer|chan|select|map|nil|true|false)\b/],
+  ],
+};
+HL_RULES.yml = HL_RULES.yaml; HL_RULES.sh = HL_RULES.shell = HL_RULES.bash;
+HL_RULES.javascript = HL_RULES.ts = HL_RULES.typescript = HL_RULES.js; HL_RULES.py = HL_RULES.python;
+HL_RULES.dockerfile = HL_RULES.bash; HL_RULES.hcl = HL_RULES.terraform = HL_RULES.bash;
+
+function highlightCode(code, lang) {
+  // Work on decoded text, escape every emitted piece exactly once
+  code = code.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
+  const rules = HL_RULES[(lang||'').toLowerCase()];
+  if (!rules) return escHtml(code);
+  const combined = new RegExp(rules.map(([,re]) => `(${re.source})`).join('|'), 'gm');
+  let out = '', last = 0, m;
+  while ((m = combined.exec(code)) !== null) {
+    if (m.index > last) out += escHtml(code.slice(last, m.index));
+    const idx = m.slice(1).findIndex(g => g !== undefined);
+    out += `<span class="token-${rules[idx][0]}">${escHtml(m[0])}</span>`;
+    last = m.index + m[0].length;
+    if (m[0].length === 0) combined.lastIndex++;
+  }
+  return out + escHtml(code.slice(last));
+}
+
+// Shared reading CSS (used by EPUB, HTML, PDF outputs)
+function readingCss(kindleSafe=true) {
+  return kindleSafe ? `
+body{font-family:Georgia,"Times New Roman",serif;font-size:1em;line-height:1.8;margin:0 5%;color:#1a1a1a}
+h1{font-size:1.9em;font-weight:bold;margin:0 0 .5em;page-break-before:always}
+h2{font-size:1.4em;font-weight:bold;margin:2em 0 .5em;border-bottom:1px solid #ccc;padding-bottom:4px}
+h3{font-size:.85em;font-weight:bold;margin:1.5em 0 .4em;text-transform:uppercase;letter-spacing:.06em}
+p{margin:0 0 .8em}ul,ol{padding-left:1.5em;margin:0 0 .8em}li{margin-bottom:.3em}
+pre{background:#1e1c18;color:#e8e0d0;padding:.8em 1em;font-size:.78em;line-height:1.5;overflow-x:auto;margin:1em 0;font-family:"Courier New",monospace;white-space:pre-wrap}
+code{font-family:"Courier New",monospace;font-size:.85em}
+p code,li code{background:#f5f2ee;border:1px solid #ddd;padding:1px 4px;color:#7a3010}
+img{max-width:100%;height:auto;display:block;margin:1em auto}
+blockquote{border-left:3px solid #c8820a;margin:1em 0;padding:4px 16px;color:#555;font-style:italic}
+hr{border:none;border-top:1px solid #ddd;margin:2em 0}a{color:#c8820a;text-decoration:none}
+table{width:100%;border-collapse:collapse;margin:1em 0;font-size:.9em}
+th{background:#f5f2ee;padding:6px 10px;text-align:left;border:1px solid #ddd;font-weight:bold}td{padding:6px 10px;border:1px solid #ddd}
+.token-comment{color:#7a7460;font-style:italic}.token-key{color:#88b8d8}.token-string{color:#88b87a}.token-keyword{color:#d08060}` : `
+body{font-family:sans-serif;font-size:1em;line-height:1.6;margin:0 4%}h1,h2,h3{font-weight:bold}
+pre{background:#f0ede8;padding:.8em;font-size:.85em;overflow-x:auto;font-family:monospace}code{font-family:monospace}img{max-width:100%}`;
+}
+
+// ══════════════════════════════════════════════════════════
+// PREVIEW
+// ══════════════════════════════════════════════════════════
+function renderPreview() {
+  if (!hasContent()) return;
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('kbarTitle').textContent = document.getElementById('bookTitle').value || 'Document';
+  const { bodyHtml, usedImages } = buildIntermediate(true);
+  document.getElementById('kindleContent').innerHTML = inlineImages(bodyHtml, usedImages);
+
+  let info='', raw='';
+  if (inFmt==='md'||inFmt==='txt') { info = countWords(sourceContent).toLocaleString()+' words'; raw = sourceContent; }
+  else if (inFmt==='html') { const c = htmlFiles.filter(f=>!isIndexFile(f.name)); info = `${c.length} chapter${c.length!==1?'s':''}`; raw = c.map(f=>`/* ── ${f.name} ── */\n${f.content}`).join('\n\n'); }
+  else { info = pdfPages.length+' pages'; raw = pdfPages.map(p=>`--- Page ${p.pageNum} ---\n${p.text}`).join('\n\n'); }
+  document.getElementById('kbarInfo').textContent = info;
+  document.getElementById('rawView').textContent = raw;
+
+  const hs = headingsOf(bodyHtml);
+  document.getElementById('tocContent').innerHTML = hs.length
+    ? '<ol style="list-style:none;padding:0">' + hs.map((h,i)=>`<li style="padding:8px 0 8px ${(h.level-1)*18}px;font-size:${h.level===1?'17px':h.level===2?'15px':'13px'};border-bottom:1px solid var(--border);display:flex;gap:10px"><span style="color:var(--ink-light);font-size:11px;font-family:'DM Mono',monospace;min-width:20px">${i+1}</span><span>${escHtml(h.text)}</span></li>`).join('') + '</ol>'
+    : '<p style="color:var(--ink-light);font-style:italic">No headings found.</p>';
+  showActiveTab();
+}
+function showActiveTab() {
+  const has = hasContent();
+  document.getElementById('kindleFrame').style.display = has&&currentTab==='render'?'block':'none';
+  document.getElementById('rawView').style.display = has&&currentTab==='raw'?'block':'none';
+  document.getElementById('tocFrame').style.display = has&&currentTab==='toc'?'block':'none';
+}
+function switchTab(tab,btn) { currentTab=tab; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); showActiveTab(); }
+
+// ══════════════════════════════════════════════════════════
+// CONVERT (dispatch on output format)
+// ══════════════════════════════════════════════════════════
+async function convert() {
+  if (!hasContent()) return;
+  const btn = document.getElementById('generateBtn'); btn.disabled = true;
+  document.getElementById('genIcon').textContent = '⏳';
+  setStatus('working', `Converting to ${FMT[outFmt].label}…`); setProgress(15);
+  const meta = {
+    title: document.getElementById('bookTitle').value || 'Untitled',
+    author: document.getElementById('bookAuthor').value || 'Unknown Author',
+    lang: document.getElementById('bookLang').value,
+    toc: document.getElementById('toggleToc').classList.contains('on'),
+    images: document.getElementById('toggleImages').classList.contains('on'),
+    kindleSafe: document.getElementById('toggleKindleSafe').classList.contains('on'),
+  };
+  try {
+    const doc = buildIntermediate(meta.images, !['md','txt'].includes(outFmt));
+    setProgress(45); await delay(30);
+    const out = await ({ epub:toEpub, html:toHtml, md:toMarkdown, pdf:toPdf, txt:toTxt })[outFmt](doc, meta);
+    setProgress(95);
+    downloadBlob(out.blob, out.filename);
+    setStatus('ready', `✓ ${out.filename} · ${(out.blob.size/1024).toFixed(1)} KB`);
+  } catch(err) { console.error(err); setStatus('error', 'Conversion failed: ' + err.message); }
+  setProgress(100); setTimeout(()=>setProgress(0),600);
+  btn.disabled = false; document.getElementById('genIcon').textContent = '⬇';
+}
+
+// ── EPUB ──
+async function toEpub({ bodyHtml, usedImages }, m) {
+  const uuid = 'urn:uuid:' + ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+  const hs = m.toc ? headingsOf(bodyHtml) : [];
+  const xhtml = (title, body, css=true) => `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${m.lang}">
+<head><meta charset="UTF-8"/><title>${escHtml(title)}</title>${css?'<link rel="stylesheet" href="style.css"/>':''}</head>
+<body>
+${body}
+</body>
+</html>`;
+  const zip = new JSZip();
+  zip.file('mimetype','application/epub+zip',{compression:'STORE'});
+  zip.folder('META-INF').file('container.xml',`<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="EPUB/package.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
+  const e = zip.folder('EPUB');
+  e.file('style.css', readingCss(m.kindleSafe));
+  const imgItems = usedImages.map((img,i) => { e.file(`images/${img.filename}`, img.data.split(',')[1], {base64:true}); return `<item id="img${i}" href="images/${img.filename}" media-type="${img.data.match(/data:([^;]+)/)[1]}"/>`; });
+  if (hs.length) e.file('toc.xhtml', xhtml('Contents', `<h1 id="toc-heading">Contents</h1><nav epub:type="toc">${hs.map((h,i)=>`<div style="padding:6px 0 6px ${(h.level-1)*1.5}em;border-bottom:1px solid #eee;display:flex;gap:10px"><span style="color:#999;min-width:22px;font-size:.8em">${i+1}</span><a href="content.xhtml#${h.id}">${escHtml(h.text)}</a></div>`).join('')}</nav>`));
+  e.file('content.xhtml', xhtml(m.title, bodyHtml));
+  e.file('nav.xhtml', xhtml('Navigation', `<nav epub:type="toc" id="toc"><h1>Contents</h1><ol>${hs.map(h=>`<li style="margin-left:${(h.level-1)*1.2}em"><a href="content.xhtml#${h.id}">${escHtml(h.text)}</a></li>`).join('')}</ol></nav>`, false));
+  e.file('toc.ncx', `<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><head><meta name="dtb:uid" content="${uuid}"/><meta name="dtb:depth" content="2"/><meta name="dtb:totalPageCount" content="0"/><meta name="dtb:maxPageNumber" content="0"/></head>
+<docTitle><text>${escHtml(m.title)}</text></docTitle><navMap>${hs.map((h,i)=>`<navPoint id="np${i+1}" playOrder="${i+1}"><navLabel><text>${escHtml(h.text)}</text></navLabel><content src="content.xhtml#${h.id}"/></navPoint>`).join('')}</navMap></ncx>`);
+  e.file('package.opf', `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid">
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="uid">${uuid}</dc:identifier><dc:title>${escHtml(m.title)}</dc:title><dc:creator>${escHtml(m.author)}</dc:creator><dc:language>${m.lang}</dc:language><dc:date>${new Date().toISOString().split('T')[0]}</dc:date><meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d+Z/,'Z')}</meta></metadata>
+<manifest><item id="style" href="style.css" media-type="text/css"/><item id="content" href="content.xhtml" media-type="application/xhtml+xml"/><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>${hs.length?'<item id="toc-page" href="toc.xhtml" media-type="application/xhtml+xml"/>':''}${imgItems.join('')}</manifest>
+<spine toc="ncx">${hs.length?'<itemref idref="toc-page"/>':''}<itemref idref="content"/></spine>
+</package>`);
+  return { blob: await zip.generateAsync({type:'blob',mimeType:'application/epub+zip'}), filename: `${slugify(m.title)}.epub` };
+}
+
+// ── HTML (single self-contained file) ──
+async function toHtml({ bodyHtml, usedImages }, m) {
+  const hs = m.toc ? headingsOf(bodyHtml) : [];
+  const toc = hs.length ? `<nav class="toc"><h2 id="toc-heading">Contents</h2><ol>${hs.map(h=>`<li style="margin-left:${(h.level-1)*1.2}em"><a href="#${h.id}">${escHtml(h.text)}</a></li>`).join('')}</ol></nav>` : '';
+  const html = `<!DOCTYPE html>
+<html lang="${m.lang}">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escHtml(m.title)}</title>
+<meta name="author" content="${escHtml(m.author)}">
+<style>
+${readingCss(true)}
+body{max-width:720px;margin:2em auto;padding:0 1.5em}
+h1{page-break-before:auto}
+.toc{background:#faf8f4;border:1px solid #e5e0d6;border-radius:8px;padding:1em 1.5em;margin-bottom:2em}
+.toc ol{list-style:none;padding:0}.toc li{padding:3px 0}
+</style>
+</head>
+<body>
+${toc}
+${inlineImages(bodyHtml, usedImages)}
+</body>
+</html>`;
+  return { blob: new Blob([html],{type:'text/html'}), filename: `${slugify(m.title)}.html` };
+}
+
+// ── Markdown (via Turndown) ──
+async function toMarkdown({ bodyHtml, usedImages }, m) {
+  const td = new TurndownService({ headingStyle:'atx', codeBlockStyle:'fenced', bulletListMarker:'-' });
+  // Preserve language on fenced code blocks
+  td.addRule('fencedWithLang', {
+    filter: node => node.nodeName==='PRE' && node.firstChild?.nodeName==='CODE',
+    replacement: (_, node) => {
+      const code = node.firstChild, lang = (code.className.match(/language-(\w+)/)||[])[1] || '';
+      return `\n\n\`\`\`${lang}\n${code.textContent.replace(/\n$/,'')}\n\`\`\`\n\n`;
+    }
+  });
+  // Basic GFM tables
+  td.addRule('table', {
+    filter: 'table',
+    replacement: (_, node) => {
+      const rows = [...node.querySelectorAll('tr')].map(tr => [...tr.children].map(c => c.textContent.trim().replace(/\|/g,'\\|')));
+      if (!rows.length) return '';
+      const w = Math.max(...rows.map(r=>r.length));
+      const line = r => '| ' + Array.from({length:w},(_,i)=>r[i]||'').join(' | ') + ' |';
+      return `\n\n${line(rows[0])}\n| ${Array(w).fill('---').join(' | ')} |\n${rows.slice(1).map(line).join('\n')}\n\n`;
+    }
+  });
+  const md = `# ${m.title}\n\n` + td.turndown(bodyHtml).trim() + '\n';
+  if (usedImages.length) {
+    const zip = new JSZip();
+    zip.file(`${slugify(m.title)}.md`, md);
+    usedImages.forEach(img => zip.file(`images/${img.filename}`, img.data.split(',')[1], {base64:true}));
+    return { blob: await zip.generateAsync({type:'blob'}), filename: `${slugify(m.title)}-markdown.zip` };
+  }
+  return { blob: new Blob([md],{type:'text/markdown'}), filename: `${slugify(m.title)}.md` };
+}
+
+// ── PDF (rendered via html2pdf) ──
+async function toPdf({ bodyHtml, usedImages }, m) {
+  const hs = m.toc ? headingsOf(bodyHtml) : [];
+  const surface = document.getElementById('pdfRender');
+  surface.innerHTML = `<style>${readingCss(true)} #pdfRender{font-size:12pt;padding:0 12mm} #pdfRender h1{page-break-before:always} #pdfRender h1:first-of-type{page-break-before:auto} #pdfRender pre{page-break-inside:avoid}</style>
+    <h1 style="page-break-before:auto">${escHtml(m.title)}</h1>
+    ${m.author!=='Unknown Author'?`<p><em>${escHtml(m.author)}</em></p>`:''}
+    ${hs.length?`<h2 id="toc-heading">Contents</h2><ol>${hs.map(h=>`<li style="margin-left:${(h.level-1)*1.2}em">${escHtml(h.text)}</li>`).join('')}</ol>`:''}
+    ${inlineImages(bodyHtml, usedImages)}`;
+  const blob = await html2pdf().set({
+    margin:[12,0,14,0], filename:`${slugify(m.title)}.pdf`, image:{type:'jpeg',quality:.92},
+    html2canvas:{scale:2,useCORS:true,logging:false}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+    pagebreak:{mode:['css','legacy']}
+  }).from(surface).outputPdf('blob');
+  surface.innerHTML = '';
+  return { blob, filename: `${slugify(m.title)}.pdf` };
+}
+
+// ── Plain text ──
+async function toTxt({ bodyHtml }, m) {
+  const doc = new DOMParser().parseFromString(bodyHtml, 'text/html');
+  doc.querySelectorAll('h1,h2,h3').forEach(h => h.textContent = `\n${h.textContent.toUpperCase()}\n`);
+  doc.querySelectorAll('li').forEach(li => li.textContent = `  • ${li.textContent}`);
+  doc.querySelectorAll('p,li,pre,blockquote,tr,hr,ul,ol').forEach(el => el.append('\n'));
+  doc.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  const text = `${m.title}\n${'='.repeat(m.title.length)}\n\n` + doc.body.textContent.replace(/\n{3,}/g,'\n\n').trim() + '\n';
+  return { blob: new Blob([text],{type:'text/plain'}), filename: `${slugify(m.title)}.txt` };
+}
+</script>
+</body>
+</html>
